@@ -1,14 +1,14 @@
 import { StyleSheet } from 'react-native';
 
-import EditScreenInfo from '@/components/EditScreenInfo';
 import { Text, View } from '@/components/Themed';
 
 export default function TabOneScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
+      <Text style={styles.title}>Menu</Text>
+      <View style={styles.separator} lightColor="#000000ff" darkColor="rgba(255, 255, 255, 1)" />
+      <Text style={styles.welcome}>Bienvenido a Dengo!</Text>
+      <Text style={styles.info}>Explora nuestro menú y disfruta de las mejores delicias.</Text>
     </View>
   );
 }
@@ -17,15 +17,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
   },
   separator: {
-    marginVertical: 30,
+    marginVertical: 20,
     height: 1,
-    width: '80%',
+    width: '85%',
+  },
+  info: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginHorizontal: 20,
+  },
+  welcome: {
+    fontSize: 18,
+    marginBottom: 20,
   },
 });

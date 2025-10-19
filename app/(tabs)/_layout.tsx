@@ -32,7 +32,7 @@ export default function TabLayout() {
             <Ionicons name={focused ? 'reader' : 'reader-outline'} color={color} size={24} />
           ),
           headerRight: () => (
-            <Link href="/modal" asChild>
+            <Link href="/(modals)/modal" asChild>
               <Pressable>
                 {({ pressed }) => (
                   <FontAwesome

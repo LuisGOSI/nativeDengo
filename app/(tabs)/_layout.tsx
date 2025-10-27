@@ -1,12 +1,12 @@
-import React from 'react';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Ionicons } from '@expo/vector-icons';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link, Tabs } from 'expo-router';
+import React from 'react';
 import { Pressable } from 'react-native';
 
-import Colors from '@/constants/Colors';
-import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import { useColorScheme } from '@/components/useColorScheme';
+import Colors from '@/constants/Colors';
 
 
 export default function TabLayout() {
@@ -24,15 +24,17 @@ export default function TabLayout() {
         headerTitle: () => null,
         tabBarStyle: { backgroundColor: Colors[colorScheme ?? 'light'].tabBarColor },
       }}>
+
+      {/* Boton para regresar a Home */}
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Menu',
+          title: 'Inicio',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'reader' : 'reader-outline'} color={color} size={24} />
+            <Ionicons name={focused ? 'home' : 'home-outline'} color={color} size={24} />
           ),
           headerRight: () => (
-            <Link href="/modal" asChild>
+            <Link href="/(modals)/login" asChild>
               <Pressable>
                 {({ pressed }) => (
                   <FontAwesome
@@ -47,6 +49,19 @@ export default function TabLayout() {
           ),
         }}
       />
+
+      {/* Boton para Menu */}
+      <Tabs.Screen
+        name='menu'
+        options={{
+          title: 'Menu',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'reader' : 'reader-outline'} color={color} size={24} />
+          )
+        }}
+      />
+
+      {/* Boton para recompensas */}
       <Tabs.Screen
         name="rewards"
         options={{
@@ -56,6 +71,29 @@ export default function TabLayout() {
           ),
         }}
       />
+
+      {/* Boton para pedidos */}
+      <Tabs.Screen
+        name="orders"
+        options={{
+          title: 'Pedidos',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'ticket' : 'ticket-outline'} color={color} size={24} />
+          ),
+        }}
+      />
+
+      {/*  Boton para el perfil */}
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Perfil',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'person' : 'person-outline'} color={color} size={24} />
+          ),
+        }}
+      />
+
     </Tabs>
   );
 }

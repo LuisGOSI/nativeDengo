@@ -2,13 +2,13 @@ import { StyleSheet } from 'react-native';
 
 import { Text, View } from '@/components/Themed';
 
-export default function TabOneScreen() {
+export default function TabHomeScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Menu</Text>
+      <Text style={styles.title}>Inicio</Text>
       <View style={styles.separator} lightColor="#000000ff" darkColor="rgba(255, 255, 255, 1)" />
       <Text style={styles.welcome}>Bienvenido a Dengo!</Text>
-      <Text style={styles.info}>Explora nuestro menú y disfruta de las mejores delicias.</Text>
+      <Text style={styles.info}>Disfruta de nuestros mejores postres y bebidas, además de los mejores precios.</Text>
     </View>
   );
 }

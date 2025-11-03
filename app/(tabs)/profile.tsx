@@ -1,54 +1,96 @@
-import { useState, useEffect } from 'react';
+import { Text, View } from '@/components/Themed';
+import { useColorScheme } from '@/components/useColorScheme';
 import { supabase } from '@/config/initSupabase';
-import { StyleSheet, Alert, ScrollView, ActivityIndicator } from 'react-native';
-import { View, Text } from '@/components/Themed';
-import { Button, TextInput, Avatar, Card, Divider } from 'react-native-paper';
+import Colors from '@/constants/Colors';
 import { useAuth } from '@/services/AuthContext';
 import { router } from 'expo-router';
-import { useColorScheme } from '@/components/useColorScheme';
-import Colors from '@/constants/Colors';
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet } from 'react-native';
+import { Avatar, Button, Card, Divider, TextInput, Menu, Provider } from 'react-native-paper';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function TabProfileScreen() {
     const { session, user, loading: authLoading, signOut } = useAuth();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
-    const [username, setUsername] = useState('');
-    const [avatarUrl, setAvatarUrl] = useState('');
+    const [nombre, setNombre] = useState('');
+    const [apellidos, setApellidos] = useState('');
+    const [fechaNacimiento, setFechaNacimiento] = useState<Date | null>(null);
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [genero, setGenero] = useState('');
+    const [telefono, setTelefono] = useState('');
     const [hasChanges, setHasChanges] = useState(false);
-    const [originalUsername, setOriginalUsername] = useState('');
+    const [originalData, setOriginalData] = useState({
+        nombre: '',
+        apellidos: '',
+        fechaNacimiento: null as Date | null,
+        genero: '',
+        telefono: ''
+    });
+    const [generoMenuVisible, setGeneroMenuVisible] = useState(false);
+
     const colorScheme = useColorScheme();
+    const colors = Colors[colorScheme ?? 'light'];
+
+    // Opciones de género
+    const generoOptions = [
+        { label: 'Masculino', value: 'masculino' },
+        { label: 'Femenino', value: 'femenino' },
+        { label: 'Otro', value: 'otro' },
+    ];
 
     //? Cargar perfil al montar el componente o cuando la sesión cambie
     useEffect(() => {
         if (session) getProfile();
     }, [session]);
 
-    //? Detectar cambios en el nombre de usuario
+    //? Detectar cambios en los campos
     useEffect(() => {
-        setHasChanges(username !== originalUsername);
-    }, [username, originalUsername]);
+        const hasChanges =
+            nombre !== originalData.nombre ||
+            apellidos !== originalData.apellidos ||
+            telefono !== originalData.telefono ||
+            genero !== originalData.genero ||
+            (fechaNacimiento?.getTime() !== originalData.fechaNacimiento?.getTime());
+
+        setHasChanges(hasChanges);
+    }, [nombre, apellidos, telefono, genero, fechaNacimiento, originalData]);
 
     //? Función para obtener el perfil del usuario
     async function getProfile() {
-        //* Obtener datos del perfil desde Supabase
         try {
             setLoading(true);
             if (!session?.user) throw new Error('No existe usuario en la sesión!');
-            //* Consulta a la tabla 'profiles'
+
             const { data, error, status } = await supabase
-                .from('profiles')
-                .select('username, avatar_url')
+                .from('usuarios')
+                .select('nombre, apellidos, telefono, genero, fecha_nacimiento')
                 .eq('id', session.user.id)
                 .single();
-            //* Manejo de errores
+
             if (error && status !== 406) {
                 throw error;
             }
-            //* Actualizar estado con los datos obtenidos
+
             if (data) {
-                setUsername(data.username || '');
-                setOriginalUsername(data.username || '');
-                setAvatarUrl(data.avatar_url || '');
+                setNombre(data.nombre || '');
+                setApellidos(data.apellidos || '');
+                setTelefono(data.telefono || '');
+                setGenero(data.genero || '');
+
+                // Parsear fecha de nacimiento
+                if (data.fecha_nacimiento) {
+                    const fecha = new Date(data.fecha_nacimiento);
+                    setFechaNacimiento(fecha);
+                }
+
+                setOriginalData({
+                    nombre: data.nombre || '',
+                    apellidos: data.apellidos || '',
+                    telefono: data.telefono || '',
+                    genero: data.genero || '',
+                    fechaNacimiento: data.fecha_nacimiento ? new Date(data.fecha_nacimiento) : null
+                });
             }
         } catch (error) {
             if (error instanceof Error) {
@@ -61,8 +103,6 @@ export default function TabProfileScreen() {
 
     //? Función para manejar el cierre de sesión
     async function handleLogOut() {
-
-        //* Confirmar acción con el usuario
         Alert.alert(
             'Cerrar sesión',
             '¿Estás seguro de que quieres cerrar sesión?',
@@ -75,11 +115,9 @@ export default function TabProfileScreen() {
                     text: 'Cerrar sesión',
                     style: 'destructive',
                     onPress: async () => {
-                        //* Cerrar sesión y redirigir al usuario
                         try {
                             await signOut();
                             router.replace('/(tabs)');
-                            setLoading(true);
                         } catch (error) {
                             Alert.alert('Error', 'No se pudo cerrar la sesión');
                         }
@@ -92,30 +130,48 @@ export default function TabProfileScreen() {
     //? Función para actualizar el perfil del usuario
     async function updateProfile() {
         try {
-            //* Actualizar datos del perfil en Supabase
             setSaving(true);
             if (!session?.user) throw new Error('No hay usuario en la sesión!');
-            //* Validar nombre de usuario
-            if (!username.trim()) {
-                Alert.alert('Error', 'El nombre de usuario no puede estar vacío');
+
+            if (!nombre.trim()) {
+                Alert.alert('Error', 'El nombre no puede estar vacío');
                 return;
             }
-            //* Preparar datos para la actualización
+
+            // Formatear fecha para Supabase
+            const fechaNacimientoFormatted = fechaNacimiento
+                ? fechaNacimiento.toISOString().split('T')[0]
+                : null;
+
             const updates = {
-                id: session.user.id,
-                username: username.trim(),
-                avatar_url: avatarUrl,
-                updated_at: new Date().toISOString(),
+                nombre: nombre.trim(),
+                apellidos: apellidos.trim(),
+                fecha_nacimiento: fechaNacimientoFormatted,
+                genero: genero,
+                telefono: telefono
             };
-            //* Realizar la actualización en la tabla 'profiles'
-            const { error } = await supabase.from('profiles').upsert(updates);
+
+            const { error } = await supabase
+                .from('usuarios')
+                .update(updates)
+                .eq('id', session.user.id);
 
             if (error) {
-                throw error;
+                Alert.alert('Error', error.message);
+                return;
             }
-            //* Actualizar estado local
-            setOriginalUsername(username.trim());
+
+            // Actualizar estado local
+            setOriginalData({
+                nombre: nombre.trim(),
+                apellidos: apellidos.trim(),
+                telefono: telefono,
+                genero: genero,
+                fechaNacimiento: fechaNacimiento
+            });
+
             Alert.alert('Éxito', 'Perfil actualizado correctamente');
+
         } catch (error) {
             if (error instanceof Error) {
                 Alert.alert('Error', error.message);
@@ -127,21 +183,46 @@ export default function TabProfileScreen() {
 
     //? Función para cancelar los cambios realizados
     function cancelChanges() {
-        setUsername(originalUsername);
+        setNombre(originalData.nombre);
+        setApellidos(originalData.apellidos);
+        setTelefono(originalData.telefono);
+        setGenero(originalData.genero);
+        setFechaNacimiento(originalData.fechaNacimiento);
     }
+
+    //? Manejar selección de fecha
+    const handleDateChange = (event: any, selectedDate?: Date) => {
+        setShowDatePicker(false);
+        if (selectedDate) {
+            setFechaNacimiento(selectedDate);
+        }
+    };
+
+    //? Obtener texto display para género
+    const getGeneroDisplayText = () => {
+        const option = generoOptions.find(opt => opt.value === genero);
+        return option ? option.label : 'Seleccionar género';
+    };
+
+    //? Obtener texto display para fecha
+    const getFechaDisplayText = () => {
+        return fechaNacimiento
+            ? fechaNacimiento.toLocaleDateString('es-MX')
+            : 'Seleccionar fecha';
+    };
 
     //? Renderizado si no hay sesión activa
     if (!session || !user) {
         return (
-            <View style={styles.loadingContainer}>
+            <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
                 <Text style={styles.loadingText}> No hay sesión activa. </Text>
-                {/* Botón para redirigir al inicio de sesión */}
                 <Button
                     mode="contained"
                     onPress={() => router.replace('/login')}
-                    style={{ marginTop: 16 }}
-                    children="Iniciar sesión"
+                    style={{ marginTop: 16, backgroundColor: colors.tint }}
+                    textColor={colorScheme === 'dark' ? colors.text : '#000'}
                 >
+                    Iniciar sesión
                 </Button>
             </View>
         );
@@ -150,117 +231,237 @@ export default function TabProfileScreen() {
     //? Renderizado condicional mientras se cargan los datos
     if (loading || authLoading) {
         return (
-            <View style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color={Colors[colorScheme ?? 'light'].tint} />
+            <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+                <ActivityIndicator size="large" color={colors.tint} />
                 <Text style={styles.loadingText}>Cargando perfil...</Text>
             </View>
         );
     }
 
-
     //? Obtener iniciales para el avatar
-    const initials = username ? username.substring(0, 2).toUpperCase() : user?.email?.substring(0, 2).toUpperCase() || '??';
+    const initials = nombre ? nombre.substring(0, 2).toUpperCase() : user?.email?.substring(0, 2).toUpperCase() || '??';
 
     return (
-        <ScrollView style={styles.scrollView}>
-            <View style={styles.container}>
-                {/* Header con Avatar */}
-                <View style={styles.headerSection}>
-                    <Avatar.Text
-                        size={100}
-                        label={initials}
-                        style={styles.avatar}
-                    />
-                    <Text style={styles.emailText}>{user?.email}</Text>
-                    <Text style={styles.memberSince}>
-                        Miembro desde {new Date(user?.created_at || '').toLocaleDateString('es-MX', {
-                            year: 'numeric',
-                            month: 'long'
-                        })}
-                    </Text>
-                </View>
+        <Provider>
+            <ScrollView style={[styles.scrollView, { backgroundColor: colors.background }]}>
+                <View style={[styles.container, { backgroundColor: colors.background }]}>
 
-                <Divider style={styles.divider} />
-
-                {/* Información del Perfil */}
-                <Card style={styles.card}>
-                    <Card.Content>
-                        <Text style={styles.sectionTitle}>Información del perfil</Text>
-
-                        <TextInput
-                            label="Correo electrónico"
-                            value={user?.email || ''}
-                            disabled
-                            mode="outlined"
-                            style={styles.input}
-                            left={<TextInput.Icon icon="email" />}
+                    {/* Header con Avatar */}
+                    <View style={styles.headerSection}>
+                        <Avatar.Text
+                            size={100}
+                            label={initials}
+                            style={[styles.avatar, { backgroundColor: colors.tint }]}
+                            color={colorScheme === 'dark' ? colors.text : '#000'}
                         />
+                        <Text style={[styles.emailText, { color: colors.text }]}>{user?.email}</Text>
+                        <Text style={[styles.memberSince, { color: colors.text, opacity: 0.6 }]}>
+                            Miembro desde {new Date(user?.created_at || '').toLocaleDateString('es-MX', {
+                                year: 'numeric',
+                                month: 'long'
+                            })}
+                        </Text>
+                    </View>
 
-                        <TextInput
-                            label="Nombre de usuario"
-                            value={username}
-                            onChangeText={setUsername}
-                            mode="outlined"
-                            disabled={saving}
-                            style={styles.input}
-                            left={<TextInput.Icon icon="account" />}
-                            placeholder="Ingresa tu nombre de usuario"
-                        />
+                    <Divider style={[styles.divider, { backgroundColor: colors.tabIconDefault }]} />
 
-                        {hasChanges && (
-                            <View style={styles.changesBanner}>
-                                <Text style={styles.changesText}>
-                                    Tienes cambios sin guardar
-                                </Text>
-                            </View>
-                        )}
+                    {/* Información del Perfil */}
+                    <Card style={[styles.card, { backgroundColor: colorScheme === 'dark' ? '#5A3E2A' : '#F8E1D1' }]}>
+                        <Card.Content>
+                            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                                Información del perfil
+                            </Text>
 
-                        <View>
-                            <Button
-                                mode="contained"
-                                onPress={updateProfile}
-                                loading={saving}
-                                disabled={!hasChanges || saving}
-                                style={styles.saveButton}
-                                icon="content-save"
+                            <TextInput
+                                label="Correo electrónico"
+                                value={user?.email || ''}
+                                disabled
+                                mode="outlined"
+                                style={styles.input}
+                                left={<TextInput.Icon icon="email" />}
+                                theme={{
+                                    colors: {
+                                        primary: colors.tint,
+                                        background: colorScheme === 'dark' ? '#6F4E37' : '#F0D4C0',
+                                    }
+                                }}
+                            />
+
+                            <TextInput
+                                label="Nombre"
+                                value={nombre}
+                                onChangeText={setNombre}
+                                mode="outlined"
+                                disabled={saving}
+                                style={styles.input}
+                                left={<TextInput.Icon icon="account" />}
+                                placeholder="Ingresa tu nombre"
+                                theme={{
+                                    colors: {
+                                        primary: colors.tint,
+                                        background: colorScheme === 'dark' ? '#6F4E37' : '#F0D4C0',
+                                    }
+                                }}
+                            />
+
+                            <TextInput
+                                label="Apellidos"
+                                value={apellidos}
+                                onChangeText={setApellidos}
+                                mode="outlined"
+                                disabled={saving}
+                                style={styles.input}
+                                left={<TextInput.Icon icon="account-outline" />}
+                                placeholder="Ingresa tus apellidos"
+                                theme={{
+                                    colors: {
+                                        primary: colors.tint,
+                                        background: colorScheme === 'dark' ? '#6F4E37' : '#F0D4C0',
+                                    }
+                                }}
+                            />
+
+                            <TextInput
+                                label="Teléfono"
+                                value={telefono}
+                                onChangeText={setTelefono}
+                                mode="outlined"
+                                disabled={saving}
+                                style={styles.input}
+                                left={<TextInput.Icon icon="phone" />}
+                                placeholder="Ingresa tu teléfono"
+                                keyboardType="phone-pad"
+                                theme={{
+                                    colors: {
+                                        primary: colors.tint,
+                                        background: colorScheme === 'dark' ? '#6F4E37' : '#F0D4C0',
+                                    }
+                                }}
+                            />
+
+                            {/* Selector de Género */}
+                            <Menu
+                                visible={generoMenuVisible}
+                                onDismiss={() => setGeneroMenuVisible(false)}
+                                anchor={
+                                    <Button
+                                        mode="outlined"
+                                        onPress={() => setGeneroMenuVisible(true)}
+                                        style={styles.selectButton}
+                                        icon="gender-male-female"
+                                        theme={{
+                                            colors: {
+                                                primary: colors.tint,
+                                            }
+                                        }}
+                                    >
+                                        {getGeneroDisplayText()}
+                                    </Button>
+                                }
                             >
-                                Guardar cambios
+                                {generoOptions.map((option) => (
+                                    <Menu.Item
+                                        key={option.value}
+                                        onPress={() => {
+                                            setGenero(option.value);
+                                            setGeneroMenuVisible(false);
+                                        }}
+                                        title={option.label}
+                                    />
+                                ))}
+                            </Menu>
+
+                            {/* Selector de Fecha de Nacimiento */}
+                            <Button
+                                mode="outlined"
+                                onPress={() => setShowDatePicker(true)}
+                                style={styles.selectButton}
+                                icon="calendar"
+                                theme={{
+                                    colors: {
+                                        primary: colors.tint,
+                                    }
+                                }}
+                            >
+                                {getFechaDisplayText()}
                             </Button>
 
-                            {hasChanges && (
-                                <Button
-                                    mode="outlined"
-                                    onPress={cancelChanges}
-                                    disabled={saving}
-                                    style={styles.cancelButton}
-                                    icon="close"
-                                >
-                                    Cancelar
-                                </Button>
+                            {showDatePicker && (
+                                <DateTimePicker
+                                    value={fechaNacimiento || new Date()}
+                                    mode="date"
+                                    display="default"
+                                    onChange={handleDateChange}
+                                    maximumDate={new Date()}
+                                />
                             )}
-                        </View>
-                    </Card.Content>
-                </Card>
 
-                {/* Sección de Cuenta */}
-                <Card style={styles.card}>
-                    <Card.Content>
-                        <Text style={styles.sectionTitle}>Cuenta</Text>
+                            {hasChanges && (
+                                <View style={[styles.changesBanner,
+                                {
+                                    backgroundColor: colorScheme === 'dark' ? '#453A23' : '#fff3cd',
+                                    borderLeftColor: colors.tint
+                                }]}>
+                                    <Text style={[styles.changesText,
+                                    { color: colorScheme === 'dark' ? colors.text : '#856404' }]}>
+                                        Tienes cambios sin guardar
+                                    </Text>
+                                </View>
+                            )}
 
-                        <Button
-                            mode="outlined"
-                            onPress={handleLogOut}
-                            disabled={saving}
-                            style={styles.logoutButton}
-                            icon="logout"
-                            textColor="#d32f2f"
-                        >
-                            Cerrar sesión
-                        </Button>
-                    </Card.Content>
-                </Card>
-            </View>
-        </ScrollView>
+                            <View>
+                                <Button
+                                    mode="contained"
+                                    onPress={updateProfile}
+                                    loading={saving}
+                                    disabled={!hasChanges || saving}
+                                    style={[styles.saveButton, { backgroundColor: colors.tint }]}
+                                    textColor={colorScheme === 'dark' ? colors.text : '#000'}
+                                    icon="content-save"
+                                >
+                                    Guardar cambios
+                                </Button>
+
+                                {hasChanges && (
+                                    <Button
+                                        mode="outlined"
+                                        onPress={cancelChanges}
+                                        disabled={saving}
+                                        style={styles.cancelButton}
+                                        icon="close"
+                                        theme={{
+                                            colors: {
+                                                primary: colors.tint,
+                                            }
+                                        }}
+                                    >
+                                        Cancelar
+                                    </Button>
+                                )}
+                            </View>
+                        </Card.Content>
+                    </Card>
+
+                    {/* Sección de Cuenta */}
+                    <Card style={[styles.card, { backgroundColor: colorScheme === 'dark' ? '#5A3E2A' : '#F8E1D1' }]}>
+                        <Card.Content>
+                            <Text style={[styles.sectionTitle, { color: colors.text }]}>Cuenta</Text>
+
+                            <Button
+                                mode="outlined"
+                                onPress={handleLogOut}
+                                disabled={saving}
+                                style={[styles.logoutButton, { borderColor: '#d32f2f' }]}
+                                icon="logout"
+                                textColor="#d32f2f"
+                            >
+                                Cerrar sesión
+                            </Button>
+                        </Card.Content>
+                    </Card>
+                </View>
+            </ScrollView>
+        </Provider>
     );
 }
 
@@ -296,10 +497,10 @@ const styles = StyleSheet.create({
     },
     memberSince: {
         fontSize: 14,
-        opacity: 0.6,
     },
     divider: {
         marginVertical: 16,
+        height: 1,
     },
     card: {
         marginBottom: 16,
@@ -313,16 +514,17 @@ const styles = StyleSheet.create({
     input: {
         marginBottom: 12,
     },
+    selectButton: {
+        marginBottom: 12,
+        justifyContent: 'flex-start',
+    },
     changesBanner: {
-        backgroundColor: '#fff3cd',
         padding: 12,
         borderRadius: 8,
         marginBottom: 16,
         borderLeftWidth: 4,
-        borderLeftColor: '#ffc107',
     },
     changesText: {
-        color: '#856404',
         fontSize: 14,
         fontWeight: '500',
     },
@@ -334,6 +536,5 @@ const styles = StyleSheet.create({
     },
     logoutButton: {
         marginTop: 8,
-        borderColor: '#d32f2f',
     },
 });

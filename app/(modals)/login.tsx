@@ -198,7 +198,7 @@ export default function ModalLoginScreen() {
           disabled={loading}
         >
           <Text style={[styles.googleButtonText, { color: inputText }]}>
-            🔍 Google
+            Google
           </Text>
         </Pressable>
       </View>

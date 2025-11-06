@@ -6,7 +6,6 @@ import { Text, View } from '@/components/Themed';
 import { Stack, router } from 'expo-router';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/config/initSupabase';
-import { AppState } from 'react-native';
 import { useAuth } from '@/services/AuthContext';
 
 export default function ModalLoginScreen() {
@@ -198,7 +197,7 @@ export default function ModalLoginScreen() {
           disabled={loading}
         >
           <Text style={[styles.googleButtonText, { color: inputText }]}>
-            🔍 Google
+            Google
           </Text>
         </Pressable>
       </View>

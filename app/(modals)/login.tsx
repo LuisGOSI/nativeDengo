@@ -6,7 +6,6 @@ import { Text, View } from '@/components/Themed';
 import { Stack, router } from 'expo-router';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/config/initSupabase';
-import { AppState } from 'react-native';
 import { useAuth } from '@/services/AuthContext';
 
 export default function ModalLoginScreen() {

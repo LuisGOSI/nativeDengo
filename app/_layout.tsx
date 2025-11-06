@@ -99,6 +99,8 @@ export default function RootLayout() {
   return <RootLayoutNav />;
 }
 
+// AQUI NO TOQUEN
+
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
 

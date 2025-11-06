@@ -1,8 +1,27 @@
 import { StyleSheet } from 'react-native';
-
 import { Text, View } from '@/components/Themed';
+import { useEffect } from 'react';
+
+//import notificaciobes
+import * as Notifications from 'expo-notifications';
 
 export default function TabHomeScreen() {
+
+  useEffect(() => {
+    // Cuando se abre la pantalla, se programa una notificación
+    const notificarAlEntrar = async () => {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: '¡Bienvenido a Dengo! 🍰',
+          body: 'Disfruta de nuestros mejores postres y bebidas.',
+        },
+        trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: 2, repeats: false }// se mostrará 2 segundos después de entrar
+      });
+    };
+
+    notificarAlEntrar();
+  }, []);
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Inicio</Text>

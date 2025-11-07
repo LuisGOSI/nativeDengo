@@ -42,7 +42,7 @@ export default function TabProfileScreen() {
                 onPress: async () => {
                     try {
                         await signOut()
-                        router.replace("/(tabs)")
+                        router.replace("/")
                     } catch (error) {
                         Alert.alert("Error", "No se pudo cerrar la sesión")
                     }

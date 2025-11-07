@@ -1,0 +1,7 @@
+export { default as WelcomeHeader } from "./WelcomeHeader"
+export { default as SearchBar } from "./SearchBar"
+export type { default as SearchBarProps } from "./SearchBar"
+export { default as CategoryGrid } from "./CategoryGrid"
+export { default as ProductCard } from "./ProductCard"
+export type { default as ProductCardProps } from "./ProductCard"
+export { default as FeaturedProducts } from "./FeaturedProducts"

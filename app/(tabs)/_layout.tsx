@@ -95,6 +95,14 @@ export default function TabLayout() {
         }}
       />
 
+      {/* Boton OCULTO para eventos */}
+      <Tabs.Screen name='events'
+        options={{
+          href: null,
+          title: 'Eventos',
+        }}
+      />
+
     </Tabs>
   );
 }

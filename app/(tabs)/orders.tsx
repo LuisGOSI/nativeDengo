@@ -38,7 +38,7 @@ interface Order {
         precio_unitario: number
         personalizacion_item: string | null
     }[]
-    pagos: any[] // Puedes tiparlo mejor si defines su estructura luego
+    pagos: any[] 
 }
 
 
@@ -63,6 +63,8 @@ export default function TabOrdersScreen() {
     const colorScheme = useColorScheme();
     const colors = Colors[colorScheme ?? 'light'];
 
+    const apiURL = process.env.EXPO_PUBLIC_BACKEND_URL;
+
 
     //? Efecto para obtener los pedidos del usuario 
     useEffect(() => {
@@ -77,7 +79,7 @@ export default function TabOrdersScreen() {
             setLoading(true);
             setError(null);
 
-            const response = await fetch(`https://x4gcc65w-3000.usw3.devtunnels.ms/api/pedidos/usuario/${userId}`);
+            const response = await fetch(apiURL+`api/pedidos/usuario/${userId}`);
             if (!response.ok) {
                 throw new Error('Error al obtener los pedidos');
             }

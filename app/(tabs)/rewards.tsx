@@ -37,7 +37,7 @@ export default function TabRewardsScreen() {
     return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             <Text style={[styles.warning, { backgroundColor: colors.background }]}>
-                Debe iniciar sesión para ver sus pedidos.
+                Debe iniciar sesión para ver sus recompensas.
             </Text>
             <NotLoggedIn />
         </View>

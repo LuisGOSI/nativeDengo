@@ -15,7 +15,7 @@ export default function TabHomeScreen() {
           title: '¡Bienvenido a Dengo! 🍰',
           body: 'Disfruta de nuestros mejores postres y bebidas.',
         },
-        trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: 2, repeats: false }// se mostrará 2 segundos después de entrar
+        trigger: null // Enviar inmediatamente
       });
     };
 

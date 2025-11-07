@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link, Tabs } from 'expo-router';
 import React from 'react';
-import { Pressable } from 'react-native';
+import { Pressable, Text } from 'react-native';
 
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
 import { useColorScheme } from '@/components/useColorScheme';
@@ -32,6 +32,35 @@ export default function TabLayout() {
           title: 'Inicio',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'home' : 'home-outline'} color={color} size={24} />
+          ),
+          headerLeft: () => (
+            <Link href="/(tabs)/branches" asChild>
+              <Pressable
+                style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 15 }}
+              >
+                {({ pressed }) => (
+                  <>
+                    <Ionicons
+                      name="location"
+                      size={20}
+                      color={Colors[colorScheme ?? 'light'].text}
+                      style={{ opacity: pressed ? 0.5 : 1 }}
+                    />
+                    <Text
+                      style={{
+                        marginLeft: 6,
+                        fontSize: 14,
+                        fontWeight: '600',
+                        color: Colors[colorScheme ?? 'light'].text,
+                        opacity: pressed ? 0.5 : 1,
+                      }}
+                    >
+                      Sucursales
+                    </Text>
+                  </>
+                )}
+              </Pressable>
+            </Link>
           ),
           headerRight: () => (
             <Link href="/(modals)/login" asChild>
@@ -103,6 +132,29 @@ export default function TabLayout() {
         }}
       />
 
+      {/* Sucursales: no aparece en tabs, sin barra y con flecha */}
+      <Tabs.Screen
+        name="branches"
+        options={{
+          href: null,
+          title: 'Sucursales',
+          tabBarStyle: { display: 'none' }, 
+          headerLeft: () => (
+            <Link href="/" asChild>
+              <Pressable style={{ marginLeft: 15 }}>
+                {({ pressed }) => (
+                  <Ionicons
+                    name="arrow-back"
+                    size={24}
+                    color={Colors[colorScheme ?? 'light'].text}
+                    style={{ opacity: pressed ? 0.5 : 1 }}
+                  />
+                )}
+              </Pressable>
+            </Link>
+          ),
+        }}
+      />
     </Tabs>
   );
 }

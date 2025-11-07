@@ -66,6 +66,7 @@ export default function TabLayout() {
         name="rewards"
         options={{
           title: 'Recompensas',
+          headerShown: false,
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'wallet' : 'wallet-outline'} color={color} size={24} />
           ),

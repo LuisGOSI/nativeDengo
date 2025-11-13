@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     },
     infoContainer: {
         padding: 10,
-        backgroundColor: "#282321ff",
+        backgroundColor: "#d8c4bcff",
     },
     nombre: {
         fontSize: 16,

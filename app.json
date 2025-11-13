@@ -28,7 +28,8 @@
       "predictiveBackGestureEnabled": false,
       "permissions": [
         "ACCESS_COARSE_LOCATION",
-        "ACCESS_FINE_LOCATION"
+        "ACCESS_FINE_LOCATION",
+        "CAMERA"
       ]
     },
     "web": {
@@ -43,7 +44,8 @@
         {
           "locationAlwaysAndWhenInUsePermission": "Dengo necesita acceso a tu ubicación para mostrarte las sucursales más cercanas y calcular distancias."
         }
-      ]
+      ],
+      "expo-barcode-scanner"
     ],
     "experiments": {
       "typedRoutes": true

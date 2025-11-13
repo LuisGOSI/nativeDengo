@@ -31,7 +31,7 @@ export default function ProductCard({
     return (
         <Pressable style={[styles.card, { backgroundColor: colors.cardBackground }]}>
             <View style={styles.imageContainer}>
-                <Image source={{ uri: "/cafe-drink.jpg" }} style={styles.image} />
+                <Image source={{ uri: "https://th.bing.com/th/id/R.403d54007e81cf13a37ba3219c1b1545?rik=6v1j3oNo0dbstg&pid=ImgRaw&r=0" }} style={styles.image} />
                 <IconButton
                     icon={isFavorite ? "heart" : "heart-outline"}
                     iconColor={isFavorite ? "#ff4757" : colors.text}

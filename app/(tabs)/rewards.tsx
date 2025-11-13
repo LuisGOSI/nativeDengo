@@ -268,7 +268,7 @@ export default function TabRewardsScreen() {
 const styles = StyleSheet.create({
       warning: {
         textAlign: 'center',
-        marginTop: 20,
+        marginTop: 100,
         fontSize: 16,
     },
   container: {

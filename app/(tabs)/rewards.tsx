@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/services/AuthContext';
 import Colors from '@/constants/Colors';
 import NotLoggedIn from "@/components/NotLoggedIn";
+import { useRouter } from 'expo-router';
 
 const { width } = Dimensions.get('window');
 
@@ -29,7 +30,8 @@ export default function TabRewardsScreen() {
   const [activeTab, setActiveTab] = useState<'productos' | 'descuentos'>('productos');
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
-      const colors = Colors[colorScheme ?? 'light'];
+  const colors = Colors[colorScheme ?? 'light'];
+  const router = useRouter();
   
   const puntosActuales = 250;
 
@@ -86,7 +88,7 @@ export default function TabRewardsScreen() {
                     <Ionicons name="star" size={24} color="#FCD34D" />
                   </View>
                 </View>
-                <TouchableOpacity style={styles.qrButton}>
+                <TouchableOpacity style={styles.qrButton} onPress={() => router.push('./ScanQRScreen')}>
                   <Ionicons name="qr-code" size={24} color="#FFFFFF" />
                 </TouchableOpacity>
               </View>

@@ -1,7 +1,7 @@
 import { Alert, Button, StyleSheet, Text, View } from 'react-native';
 import React, { useState, useEffect } from 'react';
-import { useAuth } from "@/services/AuthContext"
-
+import { useAuth } from "@/services/AuthContext";
+import { CameraView, useCameraPermissions } from 'expo-camera';
 
 type Props = {
     navigation: any;
@@ -10,49 +10,53 @@ type Props = {
 const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 export default function ScanQRScreen({ navigation }: Props) {
-    const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+    const [permission, requestPermission] = useCameraPermissions();
     const [scanned, setScanned] = useState(false);
-    const [BarCodeScannerComp, setBarCodeScannerComp] = useState<any>(null);
     const [scannerError, setScannerError] = useState<string | null>(null);
+    const [cameraReady, setCameraReady] = useState(false);
 
     const { user, loading } = useAuth();
 
     useEffect(() => {
-        // Dynamically import the native module at runtime so route preloading
-        // (which runs in a Node environment) doesn't try to load native code.
+        // Verificar si el módulo de cámara está disponible
         (async () => {
             try {
-                const mod = await import('expo-barcode-scanner');
-
-                // Defensive checks: if native module isn't available (e.g. running in
-                // Expo Go that doesn't include this native module), report friendly error
-                if (!mod || !mod.BarCodeScanner || typeof mod.BarCodeScanner.requestPermissionsAsync !== 'function') {
-                    console.warn('Barcode scanner native module is not available in this runtime.', mod);
-                    setScannerError('El módulo nativo del escáner no está disponible en esta versión de Expo Go. Usa un development build o instala la aplicación en un dispositivo nativo.');
-                    setHasPermission(false);
+                // Intentar usar la cámara para detectar si está disponible
+                if (!CameraView || typeof CameraView !== 'function') {
+                    setScannerError('El módulo de cámara no está disponible en esta versión. Usa un development build o instala la aplicación en un dispositivo nativo.');
                     return;
                 }
-
-                setBarCodeScannerComp(() => mod.BarCodeScanner);
-                const { status } = await mod.BarCodeScanner.requestPermissionsAsync();
-                setHasPermission(status === 'granted');
             } catch (err) {
-                console.error('Failed to load barcode scanner native module', err);
+                console.error('Failed to load camera module', err);
                 setScannerError(String(err));
-                setHasPermission(false);
             }
         })();
     }, []);
 
-    const handleBarCodeScanned = async ({ data }: { data: string }) => {
+    const handleBarCodeScanned = async ({ type, data }: { type: string; data: string }) => {
+        if (scanned) return; // Prevenir múltiples escaneos
+        
         setScanned(true);
         try {
-            const qrData = JSON.parse(data);
-            console.log('QR leído:', qrData);
+            console.log('QR leído:', { type, data });
 
             if (!user) {
                 Alert.alert('Error', 'No hay usuario autenticado.');
+                setScanned(false);
                 return;
+            }
+
+            // Parsear los datos del QR
+            let puntos;
+            try {
+                const qrData = JSON.parse(data);
+                puntos = qrData.puntos;
+            } catch (parseError) {
+                // Si no es JSON, intentar extraer puntos de otra forma
+                puntos = parseInt(data);
+                if (isNaN(puntos)) {
+                    throw new Error('Formato de QR no válido');
+                }
             }
 
             const res = await fetch(`${backendUrl}api/puntos/registrar`, {
@@ -60,58 +64,103 @@ export default function ScanQRScreen({ navigation }: Props) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     idUsuario: user.id,
-                    puntos: qrData.puntos,
+                    puntos: puntos,
                 }),
             });
 
             const json = await res.json();
             if (json.success) {
-                Alert.alert('🎉 Puntos añadidos', `Has ganado ${qrData.puntos} puntos.`);
+                Alert.alert('🎉 Puntos añadidos', `Has ganado ${puntos} puntos.`);
                 navigation.goBack();
             } else {
-                Alert.alert('Error', 'No se pudieron registrar los puntos');
+                Alert.alert('Error', json.message || 'No se pudieron registrar los puntos');
+                setScanned(false);
             }
-        } catch (e: unknown) {  // 👈 added type
-            console.error(e);
-            Alert.alert('Error', 'QR inválido o datos corruptos');
+        } catch (e: any) {
+            console.error('Error scanning QR:', e);
+            Alert.alert('Error', e.message || 'QR inválido o datos corruptos');
+            setScanned(false);
         }
     };
 
-    if (hasPermission === null) {
-        return <Text>Solicitando permisos de cámara...</Text>;
-    }
-    if (hasPermission === false) {
-        return <Text>No se tiene acceso a la cámara</Text>;
-    }
-
-    // BarCodeScannerComp will be null until the dynamic import finishes.
-    if (scannerError) {
+    // Estados de permisos
+    if (!permission) {
         return (
             <View style={styles.container}>
-                <Text style={{ padding: 12, textAlign: 'center' }}>
-                    {scannerError}
-                </Text>
-                <Text style={{ padding: 12, textAlign: 'center' }}>
-                    Sugerencia: crea un development build con expo-dev-client o usa EAS Build para probar funcionalidades nativas.
-                </Text>
+                <Text>Cargando permisos...</Text>
             </View>
         );
     }
 
-    if (!BarCodeScannerComp) {
-        return <Text>Cargando escáner...</Text>;
+    if (!permission.granted) {
+        return (
+            <View style={styles.container}>
+                <Text style={styles.message}>Necesitamos permiso para usar la cámara</Text>
+                <Button onPress={requestPermission} title="Conceder permiso" />
+                <Button 
+                    title="Volver" 
+                    onPress={() => navigation.goBack()} 
+                    color="#666"
+                />
+            </View>
+        );
     }
 
-    const Scanner = BarCodeScannerComp;
+    if (scannerError) {
+        return (
+            <View style={styles.container}>
+                <Text style={styles.errorText}>{scannerError}</Text>
+                <Text style={styles.suggestionText}>
+                    Sugerencia: crea un development build con expo-dev-client o usa EAS Build para probar funcionalidades nativas.
+                </Text>
+                <Button 
+                    title="Volver" 
+                    onPress={() => navigation.goBack()} 
+                    color="#666"
+                />
+            </View>
+        );
+    }
+
     return (
         <View style={styles.container}>
-            <Scanner
-                style={StyleSheet.absoluteFillObject}
-                onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-            />
+            <CameraView
+                style={styles.camera}
+                facing="back"
+                onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+                barcodeScannerSettings={{
+                    barcodeTypes: ['qr', 'pdf417', 'ean13', 'code128'] // Múltiples tipos soportados
+                }}
+                onCameraReady={() => setCameraReady(true)}
+            >
+                <View style={styles.overlay}>
+                    <View style={styles.scanFrame} />
+                    <Text style={styles.scanText}>Enfoca un código QR</Text>
+                </View>
+            </CameraView>
+            
             {scanned && (
-                <Button title="Escanear otro QR" onPress={() => setScanned(false)} />
+                <View style={styles.buttonContainer}>
+                    <Button 
+                        title="Escanear otro QR" 
+                        onPress={() => setScanned(false)} 
+                    />
+                </View>
             )}
+            
+            {!cameraReady && (
+                <View style={styles.loadingContainer}>
+                    <Text style={styles.loadingText}>Inicializando cámara...</Text>
+                </View>
+            )}
+            
+            <View style={styles.bottomContainer}>
+                <Button 
+                    title="Volver" 
+                    onPress={() => navigation.goBack()} 
+                    color="#666"
+                />
+            </View>
         </View>
     );
 }
@@ -119,7 +168,76 @@ export default function ScanQRScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
+        backgroundColor: 'black',
+    },
+    camera: {
+        flex: 1,
+    },
+    overlay: {
+        flex: 1,
+        backgroundColor: 'transparent',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    scanFrame: {
+        width: 250,
+        height: 250,
+        borderWidth: 2,
+        borderColor: 'white',
+        backgroundColor: 'transparent',
+        borderRadius: 12,
+    },
+    scanText: {
+        color: 'white',
+        fontSize: 16,
+        marginTop: 20,
+        textAlign: 'center',
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 8,
+    },
+    message: {
+        textAlign: 'center',
+        padding: 20,
+        fontSize: 16,
+    },
+    errorText: {
+        textAlign: 'center',
+        padding: 20,
+        fontSize: 16,
+        color: 'red',
+    },
+    suggestionText: {
+        textAlign: 'center',
+        padding: 20,
+        fontSize: 14,
+        color: '#666',
+    },
+    buttonContainer: {
+        position: 'absolute',
+        top: 50,
+        alignSelf: 'center',
+        backgroundColor: 'white',
+        borderRadius: 8,
+        padding: 8,
+    },
+    bottomContainer: {
+        position: 'absolute',
+        bottom: 30,
+        alignSelf: 'center',
+        backgroundColor: 'white',
+        borderRadius: 8,
+        padding: 8,
+    },
+    loadingContainer: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    loadingText: {
+        color: 'white',
+        fontSize: 18,
     },
 });

@@ -132,13 +132,20 @@ export default function TabLayout() {
         }}
       />
 
+      <Tabs.Screen name='ScanQRScreen'
+        options={{
+          href: null,
+          title: 'Qr Scanner',
+        }}
+      />
+
       {/* Sucursales: no aparece en tabs, sin barra y con flecha */}
       <Tabs.Screen
         name="branches"
         options={{
           href: null,
           title: 'Sucursales',
-          tabBarStyle: { display: 'none' }, 
+          tabBarStyle: { display: 'none' },
           headerLeft: () => (
             <Link href="/" asChild>
               <Pressable style={{ marginLeft: 15 }}>

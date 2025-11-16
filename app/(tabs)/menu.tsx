@@ -27,7 +27,7 @@ export default function TabMenuScreen() {
     useEffect(() => {
         const fetchProductos = async () => {
             try {
-                const response = await fetch(`${backendUrl}api/productos/activos`);
+                const response = await fetch(`${backendUrl}api/productos`);
                 const result = await response.json();
                 if (result.success) {
                     setProductos(result.data);

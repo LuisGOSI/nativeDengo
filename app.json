@@ -21,7 +21,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/Dengo_logo_png.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,

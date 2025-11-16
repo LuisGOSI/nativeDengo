@@ -400,247 +400,247 @@ const darkMapStyle = [
     { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
     { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
     {
-    featureType: "administrative.locality",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#d59563" }],
+        featureType: "administrative.locality",
+        elementType: "labels.text.fill",
+        stylers: [{ color: "#d59563" }],
     },
     {
-    featureType: "poi",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#d59563" }],
+        featureType: "poi",
+        elementType: "labels.text.fill",
+        stylers: [{ color: "#d59563" }],
     },
     {
-    featureType: "poi.park",
-    elementType: "geometry",
-    stylers: [{ color: "#263c3f" }],
+        featureType: "poi.park",
+        elementType: "geometry",
+        stylers: [{ color: "#263c3f" }],
     },
     {
-    featureType: "poi.park",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#6b9a76" }],
+        featureType: "poi.park",
+        elementType: "labels.text.fill",
+        stylers: [{ color: "#6b9a76" }],
     },
     {
-    featureType: "road",
-    elementType: "geometry",
-    stylers: [{ color: "#38414e" }],
-  },
-  {
-    featureType: "road",
-    elementType: "geometry.stroke",
-    stylers: [{ color: "#212a37" }],
-  },
-  {
-    featureType: "road",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#9ca5b3" }],
-  },
-  {
-    featureType: "road.highway",
-    elementType: "geometry",
-    stylers: [{ color: "#746855" }],
-  },
-  {
-    featureType: "road.highway",
-    elementType: "geometry.stroke",
-    stylers: [{ color: "#1f2835" }],
-  },
-  {
-    featureType: "road.highway",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#f3d19c" }],
-  },
-  {
-    featureType: "transit",
-    elementType: "geometry",
-    stylers: [{ color: "#2f3948" }],
-  },
-  {
-    featureType: "transit.station",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#d59563" }],
-  },
-  {
-    featureType: "water",
-    elementType: "geometry",
-    stylers: [{ color: "#17263c" }],
-  },
-  {
-    featureType: "water",
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#515c6d" }],
-  },
-  {
-    featureType: "water",
-    elementType: "labels.text.stroke",
-    stylers: [{ color: "#17263c" }],
-  },
+        featureType: "road",
+        elementType: "geometry",
+        stylers: [{ color: "#38414e" }],
+    },
+    {
+        featureType: "road",
+        elementType: "geometry.stroke",
+        stylers: [{ color: "#212a37" }],
+    },
+    {
+        featureType: "road",
+        elementType: "labels.text.fill",
+        stylers: [{ color: "#9ca5b3" }],
+    },
+    {
+        featureType: "road.highway",
+        elementType: "geometry",
+        stylers: [{ color: "#746855" }],
+    },
+    {
+        featureType: "road.highway",
+        elementType: "geometry.stroke",
+        stylers: [{ color: "#1f2835" }],
+    },
+    {
+        featureType: "road.highway",
+        elementType: "labels.text.fill",
+        stylers: [{ color: "#f3d19c" }],
+    },
+    {
+        featureType: "transit",
+        elementType: "geometry",
+        stylers: [{ color: "#2f3948" }],
+    },
+    {
+        featureType: "transit.station",
+        elementType: "labels.text.fill",
+        stylers: [{ color: "#d59563" }],
+    },
+    {
+        featureType: "water",
+        elementType: "geometry",
+        stylers: [{ color: "#17263c" }],
+    },
+    {
+        featureType: "water",
+        elementType: "labels.text.fill",
+        stylers: [{ color: "#515c6d" }],
+    },
+    {
+        featureType: "water",
+        elementType: "labels.text.stroke",
+        stylers: [{ color: "#17263c" }],
+    },
 ];
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  contentContainer: {
-    paddingBottom: 24,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 60,
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 14,
-    opacity: 0.6,
-  },
-  headerSection: {
-    paddingHorizontal: 20,
-    paddingTop: 24,
-    paddingBottom: 16,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    marginBottom: 8,
-    letterSpacing: 0.3,
-  },
-  subtitle: {
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  locationAlert: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: 20,
-    marginBottom: 16,
-    padding: 16,
-    backgroundColor: '#FEF3C7',
-    borderRadius: 12,
-    gap: 12,
-  },
-  locationAlertText: {
-    flex: 1,
-  },
-  locationAlertTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#78350F',
-    marginBottom: 2,
-  },
-  locationAlertSubtitle: {
-    fontSize: 12,
-    color: '#92400E',
-  },
-  locationButton: {
-    backgroundColor: '#F59E0B',
-  },
-  locationButtonLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  mapContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 24,
-    height: 250,
-  },
-  map: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  branchesSection: {
-    paddingHorizontal: 20,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: 16,
-    letterSpacing: 0.3,
-  },
-  branchCard: {
-    marginBottom: 16,
-    borderRadius: 16,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    backgroundColor: '#FFFFFF',
-  },
-  branchHeader: {
-    flexDirection: 'row',
-    marginBottom: 16,
-  },
-  branchIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: '#FEF3C7',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  branchInfo: {
-    flex: 1,
-  },
-  branchTitleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  branchName: {
-    fontSize: 18,
-    fontWeight: '700',
-    flex: 1,
-  },
-  statusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    backgroundColor: '#D1FAE5',
-  },
-  statusText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#065F46',
-  },
-  branchDetails: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  addressText: {
-    fontSize: 14,
-    marginLeft: 6,
-    flex: 1,
-  },
-  branchMeta: {
-    flexDirection: 'row',
-    gap: 16,
-    marginBottom: 4,
-  },
-  metaItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  metaText: {
-    fontSize: 12,
-    marginLeft: 4,
-  },
-  branchActions: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 8,
-  },
-  actionButton: {
-    flex: 1,
-    borderRadius: 12,
-  },
-  actionButtonLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
+    container: {
+        flex: 1,
+    },
+    contentContainer: {
+        paddingBottom: 24,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 60,
+    },
+    loadingText: {
+        marginTop: 12,
+        fontSize: 14,
+        opacity: 0.6,
+    },
+    headerSection: {
+        paddingHorizontal: 20,
+        paddingTop: 24,
+        paddingBottom: 16,
+    },
+    title: {
+        fontSize: 28,
+        fontWeight: '700',
+        marginBottom: 8,
+        letterSpacing: 0.3,
+    },
+    subtitle: {
+        fontSize: 14,
+        lineHeight: 20,
+    },
+    locationAlert: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginHorizontal: 20,
+        marginBottom: 16,
+        padding: 16,
+        backgroundColor: '#FEF3C7',
+        borderRadius: 12,
+        gap: 12,
+    },
+    locationAlertText: {
+        flex: 1,
+    },
+    locationAlertTitle: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#78350F',
+        marginBottom: 2,
+    },
+    locationAlertSubtitle: {
+        fontSize: 12,
+        color: '#92400E',
+    },
+    locationButton: {
+        backgroundColor: '#F59E0B',
+    },
+    locationButtonLabel: {
+        fontSize: 12,
+        fontWeight: '600',
+    },
+    mapContainer: {
+        paddingHorizontal: 20,
+        marginBottom: 24,
+        height: 250,
+    },
+    map: {
+        width: '100%',
+        height: '100%',
+        borderRadius: 16,
+        overflow: 'hidden',
+    },
+    branchesSection: {
+        paddingHorizontal: 20,
+    },
+    sectionTitle: {
+        fontSize: 20,
+        fontWeight: '700',
+        marginBottom: 16,
+        letterSpacing: 0.3,
+    },
+    branchCard: {
+        marginBottom: 16,
+        borderRadius: 16,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        backgroundColor: '#FFFFFF',
+    },
+    branchHeader: {
+        flexDirection: 'row',
+        marginBottom: 16,
+    },
+    branchIcon: {
+        width: 48,
+        height: 48,
+        borderRadius: 12,
+        backgroundColor: '#FEF3C7',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
+    },
+    branchInfo: {
+        flex: 1,
+    },
+    branchTitleRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    branchName: {
+        fontSize: 18,
+        fontWeight: '700',
+        flex: 1,
+    },
+    statusBadge: {
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 12,
+        backgroundColor: '#D1FAE5',
+    },
+    statusText: {
+        fontSize: 12,
+        fontWeight: '600',
+        color: '#065F46',
+    },
+    branchDetails: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    addressText: {
+        fontSize: 14,
+        marginLeft: 6,
+        flex: 1,
+    },
+    branchMeta: {
+        flexDirection: 'row',
+        gap: 16,
+        marginBottom: 4,
+    },
+    metaItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    metaText: {
+        fontSize: 12,
+        marginLeft: 4,
+    },
+    branchActions: {
+        flexDirection: 'row',
+        gap: 12,
+        marginTop: 8,
+    },
+    actionButton: {
+        flex: 1,
+        borderRadius: 12,
+    },
+    actionButtonLabel: {
+        fontSize: 12,
+        fontWeight: '600',
+    },
 });

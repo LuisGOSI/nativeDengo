@@ -1,31 +1,40 @@
-const tintColorLight = '#6B3E26ff'; // café cálido
-const tintColorDark = '#E5D1C8ff'; // crema cálida ligeramente más clara para el tema oscuro
+// Colores base profesionales con excelente contraste
+const tintColorLight = '#0066CC'; // azul profesional vibrante
+const tintColorDark = '#4A9EFF'; // azul más claro para oscuro
 
 export default {
   light: {
-    text: '#2B2B2Bff', // carbón suave
-    background: '#FAF7F4ff', // crema muy clara
-    secondaryBackground: '#F5F2EEff', // beige claro
+    text: '#1A1A1A', // negro casi puro con menos dureza
+    background: '#FFFFFF', // blanco puro y limpio
+    secondaryBackground: '#F5F5F7', // gris muy claro (estilo iOS)
     tint: tintColorLight,
-    tabIconDefault: '#8E8E8Eff', // gris neutro
+    tabIconDefault: '#8E8E93', // gris medio neutro
     tabIconSelected: tintColorLight,
-    tabBarColor: '#FFFFFFFF', // blanco limpio
-    cardBackground: '#FFFFFFFF', // tarjetas blancas para limpieza visual
-    textSecondary: '#6B6B6Bff', // gris secundario
-    button: '#4B2E23ff', // espresso oscuro (primario)
-    secondaryButton: '#C77B51ff', // acento cálido
+    tabBarColor: '#FFFFFF', // blanco limpio
+    cardBackground: '#FFFFFF', // tarjetas blancas
+    textSecondary: '#6C6C70', // gris para texto secundario
+    button: '#0066CC', // azul primario
+    secondaryButton: '#F5F5F7', // gris claro para botones secundarios
+    border: '#E5E5EA', // bordes sutiles
+    success: '#34C759', // verde éxito
+    warning: '#FF9500', // naranja advertencia
+    error: '#FF3B30', // rojo error
   },
   dark: {
-    text: '#F6F2EEff', // texto claro atenuado, un poco más brillante
-    background: '#3F3734ff', // fondo menos oscuro (más claro que antes)
-    secondaryBackground: '#423935ff', // fondo secundario suavizado y más claro
+    text: '#FFFFFF', // blanco puro para máximo contraste
+    background: '#000000', // negro verdadero (OLED friendly)
+    secondaryBackground: '#1C1C1E', // gris muy oscuro
     tint: tintColorDark,
-    tabIconDefault: '#D8D2CEff', // íconos más suaves
+    tabIconDefault: '#8E8E93', // gris medio
     tabIconSelected: tintColorDark,
-    tabBarColor: '#403832ff', // barra de pestañas menos contrastada y más clara
-    cardBackground: '#635046ff', // tarjeta en marrón medio atenuado y más clara
-    textSecondary: '#ECE3DDff', // texto secundario claro
-    button: '#B0897Bff', // botón primario ligeramente más claro
-    secondaryButton: '#9B7F6Aff', // botón secundario atenuado y más claro
+    tabBarColor: '#1C1C1E', // gris muy oscuro
+    cardBackground: '#1C1C1E', // tarjetas en gris oscuro
+    textSecondary: '#EBEBF5', // blanco con 60% opacidad
+    button: '#0A84FF', // azul más brillante para oscuro
+    secondaryButton: '#2C2C2E', // gris oscuro para botones secundarios
+    border: '#38383A', // bordes sutiles en oscuro
+    success: '#32D74B', // verde más brillante
+    warning: '#FF9F0A', // naranja más brillante
+    error: '#FF453A', // rojo más brillante
   },
 };

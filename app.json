@@ -9,20 +9,50 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/Dengo_logo_png.png",
+      "image": "./assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#FFFFFF"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
+      "splash": {
+        "image": "./assets/images/splash.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#FAFAF8",
+        "dark": {
+          "image": "./assets/images/splash-dark.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#1a1a1a"
+        }
+      },
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Dengo necesita acceso a tu ubicación para mostrarte las sucursales más cercanas y calcular distancias."
+        "NSLocationWhenInUseUsageDescription": "Dengo necesita acceso a tu ubicación para mostrarte las sucursales más cercanas y calcular distancias.",
+        "UILaunchStoryboardName": "SplashScreen"
       }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#FAFAF8",
+        "monochromeImage": "./assets/images/adaptive-icon-monochrome.png"
+      },
+      "splash": {
+        "image": "./assets/images/splash.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#FAFAF8",
+        "mdpi": "./assets/images/splash-mdpi.png",
+        "hdpi": "./assets/images/splash-hdpi.png",
+        "xhdpi": "./assets/images/splash-xhdpi.png",
+        "xxhdpi": "./assets/images/splash-xxhdpi.png",
+        "xxxhdpi": "./assets/images/splash-xxxhdpi.png",
+        "dark": {
+          "image": "./assets/images/splash-dark.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#1a1a1a"
+        }
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
@@ -39,10 +69,27 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "splash": {
+        "image": "./assets/images/splash-web.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#FAFAF8"
+      }
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#FAFAF8",
+          "image": "./assets/images/splash.png",
+          "dark": {
+            "backgroundColor": "#1a1a1a",
+            "image": "./assets/images/splash-dark.png"
+          },
+          "imageWidth": 200
+        }
+      ],
       [
         "expo-location",
         {

@@ -35,24 +35,8 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#FAFAF8",
-        "monochromeImage": "./assets/images/adaptive-icon-monochrome.png"
-      },
-      "splash": {
-        "image": "./assets/images/splash.png",
-        "resizeMode": "contain",
-        "backgroundColor": "#FAFAF8",
-        "mdpi": "./assets/images/splash-mdpi.png",
-        "hdpi": "./assets/images/splash-hdpi.png",
-        "xhdpi": "./assets/images/splash-xhdpi.png",
-        "xxhdpi": "./assets/images/splash-xxhdpi.png",
-        "xxxhdpi": "./assets/images/splash-xxxhdpi.png",
-        "dark": {
-          "image": "./assets/images/splash-dark.png",
-          "resizeMode": "contain",
-          "backgroundColor": "#1a1a1a"
-        }
+        "foregroundImage": "./assets/images/Dengo_logo_png.png",
+        "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,

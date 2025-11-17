@@ -1,27 +1,41 @@
 {
   "expo": {
     "name": "Dengo",
-    "slug": "Dengo",
+    "slug": "dengo",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.svg",
+    "icon": "./assets/images/Dengo_logo_png.png",
     "scheme": "dengo",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/splash-icon.svg",
+      "image": "./assets/images/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#FFFFFF"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
+      "splash": {
+        "image": "./assets/images/splash.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#FAFAF8",
+        "dark": {
+          "image": "./assets/images/splash-dark.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#1a1a1a"
+        }
+      },
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Dengo necesita acceso a tu ubicación para mostrarte las sucursales más cercanas y calcular distancias."
+        "NSLocationWhenInUseUsageDescription": "Dengo necesita acceso a tu ubicación para mostrarte las sucursales más cercanas y calcular distancias.",
+        "UILaunchStoryboardName": "SplashScreen"
       }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/Dengo_logo_png.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
@@ -29,26 +43,54 @@
       "permissions": [
         "ACCESS_COARSE_LOCATION",
         "ACCESS_FINE_LOCATION",
-        "CAMERA"
-      ]
+        "CAMERA",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.CAMERA"
+      ],
+      "package": "com.luisgosi.dengo"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "splash": {
+        "image": "./assets/images/splash-web.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#FAFAF8"
+      }
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#FAFAF8",
+          "image": "./assets/images/splash.png",
+          "dark": {
+            "backgroundColor": "#1a1a1a",
+            "image": "./assets/images/splash-dark.png"
+          },
+          "imageWidth": 200
+        }
+      ],
       [
         "expo-location",
         {
           "locationAlwaysAndWhenInUsePermission": "Dengo necesita acceso a tu ubicación para mostrarte las sucursales más cercanas y calcular distancias."
         }
       ],
-      "expo-barcode-scanner"
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "f97890f1-560a-4c45-83cd-a41300a1ad6c"
+      }
+    },
+    "owner": "luisgosi"
   }
 }

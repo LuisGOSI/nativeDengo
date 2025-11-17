@@ -1,14 +1,16 @@
 import { StyleSheet, ScrollView, TouchableOpacity, Dimensions, useColorScheme, View as RNView, Animated } from 'react-native';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Text, View } from '@/components/Themed';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '@/services/AuthContext';
 import Colors from '@/constants/Colors';
 import NotLoggedIn from "@/components/NotLoggedIn";
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
+
+const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
 
 interface Producto {
   id: number;
@@ -26,8 +28,16 @@ interface Descuento {
   valido: string;
 }
 
+type PointsCardProps = {
+  puntosActuales: number;
+  visitas: number;
+  nivel: string;
+  onQRPress: () => void;
+};
+
+
 // Componente PointsCard con animación
-const PointsCard = ({ puntosActuales, onQRPress }: { puntosActuales: number; onQRPress: () => void }) => {
+const PointsCard = ({ puntosActuales, visitas, nivel, onQRPress }: PointsCardProps) => {
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
 
@@ -64,49 +74,40 @@ const PointsCard = ({ puntosActuales, onQRPress }: { puntosActuales: number; onQ
           <View style={styles.pointsMain}>
             <View style={styles.pointsLeft}>
               <Text style={styles.pointsLabel}>Tus puntos disponibles</Text>
+
               <View style={styles.pointsAmount}>
                 <Text style={styles.pointsNumber}>{puntosActuales}</Text>
-                <Animated.View style={{ transform: [{ rotate: spin }] }}>
-                  <Ionicons name="star" size={32} color="#FCD34D" />
-                </Animated.View>
               </View>
+
+              <Text style={{ color: "white", marginTop: 5 }}>
+                Nivel: {nivel}
+              </Text>
+
+              <Text style={{ color: "white", marginTop: 2 }}>
+                Visitas: {visitas}
+              </Text>
             </View>
-            <TouchableOpacity 
-              style={styles.qrButton} 
-              onPress={onQRPress}
-              activeOpacity={0.7}
-            >
-              <Ionicons name="qr-code" size={28} color="#FFFFFF" />
+
+            <TouchableOpacity style={styles.qrButton} onPress={onQRPress}>
+              <Ionicons name="qr-code" size={24} color="#FFFFFF" />
             </TouchableOpacity>
-          </View>
-          
-          <View style={styles.pointsStats}>
-            <View style={styles.statBox}>
-              <Ionicons name="trending-up" size={16} color="#10B981" style={{ marginBottom: 4 }} />
-              <Text style={styles.statLabel}>Este mes</Text>
-              <Text style={styles.statValue}>+180</Text>
-            </View>
-            <View style={styles.statBox}>
-              <Ionicons name="gift-outline" size={16} color="#F59E0B" style={{ marginBottom: 4 }} />
-              <Text style={styles.statLabel}>Canjeados</Text>
-              <Text style={styles.statValue}>430</Text>
-            </View>
           </View>
         </View>
       </LinearGradient>
     </Animated.View>
   );
+
 };
 
 // Componente ProductCard con animación
-const ProductCard = ({ 
-  producto, 
-  puntosActuales, 
+const ProductCard = ({
+  producto,
+  puntosActuales,
   isDark,
-  index 
-}: { 
-  producto: Producto; 
-  puntosActuales: number; 
+  index
+}: {
+  producto: Producto;
+  puntosActuales: number;
   isDark: boolean;
   index: number;
 }) => {
@@ -150,7 +151,7 @@ const ProductCard = ({
   const canCanje = puntosActuales >= producto.puntos;
 
   return (
-    <Animated.View 
+    <Animated.View
       style={[
         styles.productCardWrapper,
         {
@@ -214,14 +215,14 @@ const ProductCard = ({
 };
 
 // Componente DescuentoCard con animación
-const DescuentoCard = ({ 
-  descuento, 
-  puntosActuales, 
+const DescuentoCard = ({
+  descuento,
+  puntosActuales,
   isDark,
-  index 
-}: { 
-  descuento: Descuento; 
-  puntosActuales: number; 
+  index
+}: {
+  descuento: Descuento;
+  puntosActuales: number;
   isDark: boolean;
   index: number;
 }) => {
@@ -249,7 +250,7 @@ const DescuentoCard = ({
   const canCanje = puntosActuales >= descuento.puntos;
 
   return (
-    <Animated.View 
+    <Animated.View
       style={{
         opacity: fadeAnim,
         transform: [{ translateX: slideAnim }]
@@ -321,8 +322,63 @@ export default function TabRewardsScreen() {
   const colors = Colors[colorScheme ?? 'light'];
   const router = useRouter();
   const headerAnim = useRef(new Animated.Value(0)).current;
-  
-  const puntosActuales = 250;
+
+  const [puntos, setPuntos] = useState(0);
+  const [visitas, setVisitas] = useState(0);
+  const [nivel, setNivel] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
+
+
+  // Función para obtener puntos
+  const obtenerPuntos = async () => {
+    if (!session?.user.id) {
+      console.log("No hay usuario logueado");
+      return;
+    }
+
+    setRefreshing(true);
+    try {
+      const response = await fetch(
+        `${backendUrl}api/puntos?idUsuario=${session.user.id}`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Error HTTP: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        setPuntos(data.puntos);
+        setVisitas(data.visitas);
+        setNivel(data.nivel);
+        console.log("Puntos actualizados:", data.puntos);
+      } else {
+        console.error("Error del servidor:", data.error);
+      }
+    } catch (error) {
+      console.log("Error al obtener puntos:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  // Cargar datos iniciales
+  useEffect(() => {
+    obtenerPuntos();
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      obtenerPuntos();
+    }, [session?.user.id])
+  );
+
+
 
   useEffect(() => {
     Animated.spring(headerAnim, {
@@ -343,7 +399,7 @@ export default function TabRewardsScreen() {
       </View>
     );
   }
-  
+
   const productosRecompensa: Producto[] = [
     { id: 1, nombre: 'Café Americano', puntos: 50, emoji: '☕', disponible: true },
     { id: 2, nombre: 'Cappuccino', puntos: 75, emoji: '☕', disponible: true },
@@ -352,7 +408,7 @@ export default function TabRewardsScreen() {
     { id: 5, nombre: 'Sandwich', puntos: 120, emoji: '🥪', disponible: true },
     { id: 6, nombre: 'Jugo Natural', puntos: 80, emoji: '🧃', disponible: true },
   ];
-  
+
   const descuentosDisponibles: Descuento[] = [
     { id: 1, nombre: '10% en tu próxima compra', porcentaje: 10, puntos: 100, valido: '30 días' },
     { id: 2, nombre: '15% en bebidas', porcentaje: 15, puntos: 150, valido: '15 días' },
@@ -362,12 +418,12 @@ export default function TabRewardsScreen() {
 
   return (
     <View style={styles.container}>
-      <ScrollView 
+      <ScrollView
         style={styles.scrollView}
         showsVerticalScrollIndicator={false}
       >
         {/* Header con gradiente */}
-        <Animated.View 
+        <Animated.View
           style={[
             styles.header,
             {
@@ -396,11 +452,14 @@ export default function TabRewardsScreen() {
                 <Ionicons name="gift" size={44} color="#FCD34D" />
               </View>
             </View>
-            
-            <PointsCard 
-              puntosActuales={puntosActuales} 
-              onQRPress={() => router.push('./ScanQRScreen')}
+
+            <PointsCard
+              puntosActuales={puntos}
+              visitas={visitas}
+              nivel={nivel}
+              onQRPress={() => router.push("./ScanQRScreen")}
             />
+
           </LinearGradient>
         </Animated.View>
 
@@ -414,7 +473,7 @@ export default function TabRewardsScreen() {
             <View style={styles.infoTextContainer}>
               <Text style={styles.infoTitle}>¿Cómo ganar puntos?</Text>
               <Text style={styles.infoText}>
-                Por cada compra obtienes un porcentaje en puntos. Compras en la app se acreditan 
+                Por cada compra obtienes un porcentaje en puntos. Compras en la app se acreditan
                 automáticamente, en tienda escanea tu QR en el ticket.
               </Text>
             </View>
@@ -445,7 +504,7 @@ export default function TabRewardsScreen() {
               </>
             )}
           </TouchableOpacity>
-          
+
           <TouchableOpacity
             style={[styles.tab, activeTab === 'descuentos' && styles.tabActive]}
             onPress={() => setActiveTab('descuentos')}
@@ -479,13 +538,13 @@ export default function TabRewardsScreen() {
                 Canjea por productos
               </Text>
             </View>
-            
+
             <View style={styles.productsGrid}>
               {productosRecompensa.map((producto, index) => (
                 <ProductCard
                   key={producto.id}
                   producto={producto}
-                  puntosActuales={puntosActuales}
+                  puntosActuales={puntos}
                   isDark={isDark}
                   index={index}
                 />
@@ -500,13 +559,13 @@ export default function TabRewardsScreen() {
                 Descuentos disponibles
               </Text>
             </View>
-            
+
             <View style={styles.descuentosList}>
               {descuentosDisponibles.map((descuento, index) => (
                 <DescuentoCard
                   key={descuento.id}
                   descuento={descuento}
-                  puntosActuales={puntosActuales}
+                  puntosActuales={puntos}
                   isDark={isDark}
                   index={index}
                 />
@@ -514,7 +573,7 @@ export default function TabRewardsScreen() {
             </View>
           </View>
         )}
-        
+
         <View style={styles.bottomSpacer} />
       </ScrollView>
     </View>

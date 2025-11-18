@@ -19,9 +19,9 @@ interface Producto {
     descripcion?: string;
     precio: number;
     url_imagen?: string;
-    categoria_id: number; // ← Agrega esta propiedad
+    categoria_id: number;
     activo?: boolean;
-    categoria?: {        // ← Opcional: si el backend devuelve la relación completa
+    categoria?: {        
         id: number;
         nombre: string;
     };

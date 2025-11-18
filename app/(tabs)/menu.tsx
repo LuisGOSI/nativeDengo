@@ -8,6 +8,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useAuth } from '@/services/AuthContext';
 import { router } from "expo-router";
 
+import { CartIcon } from '@/components/CartIcon';
+import { useCart } from '@/services/CartContext';
+
 const { width } = Dimensions.get('window');
 
 interface Producto {
@@ -16,11 +19,17 @@ interface Producto {
     descripcion?: string;
     precio: number;
     url_imagen?: string;
+    categoria_id: number;
+    activo?: boolean;
+    categoria?: {        
+        id: number;
+        nombre: string;
+    };
 }
 
-const ProductCard = ({ item, colors, onOrdenar, index }: { 
-    item: Producto; 
-    colors: any; 
+const ProductCard = ({ item, colors, onOrdenar, index }: {
+    item: Producto;
+    colors: any;
     onOrdenar: (producto: Producto) => void;
     index: number;
 }) => {
@@ -62,7 +71,7 @@ const ProductCard = ({ item, colors, onOrdenar, index }: {
     };
 
     return (
-        <Animated.View 
+        <Animated.View
             style={[
                 styles.cardWrapper,
                 {
@@ -89,7 +98,7 @@ const ProductCard = ({ item, colors, onOrdenar, index }: {
                             style={styles.imageGradient}
                         />
                     </View>
-                    
+
                     <View style={styles.contentContainer}>
                         <View style={styles.textContainer}>
                             <Text style={[styles.nombre, { color: colors.text }]} numberOfLines={1}>
@@ -129,6 +138,7 @@ export default function TabMenuScreen() {
     const headerAnim = useRef(new Animated.Value(0)).current;
 
     const { session } = useAuth();
+    const { getItemCount } = useCart();
     const backendUrl = process.env.EXPO_PUBLIC_BACKEND_URL;
     const colorScheme = useColorScheme();
     const colors = Colors[colorScheme ?? 'light'];
@@ -169,20 +179,33 @@ export default function TabMenuScreen() {
                     { text: "Cancelar", style: "cancel" },
                     {
                         text: "Iniciar sesión",
-                        onPress: () => router.push("/login"),
+                        onPress: () => router.push("/(modals)/login"),
                     },
                 ]
             );
             return;
         }
 
-        Alert.alert("Orden realizada", `Has ordenado: ${producto.nombre}`);
+        // Navegar al modal de personalización
+        router.push({
+            pathname: "/(modals)/customize-product",
+            params: {
+                productId: producto.id,
+                productName: producto.nombre,
+                productPrice: producto.precio,
+                categoryId: producto.categoria_id || 1 // Valor por defecto si no existe
+            }
+        });
+    };
+
+    const handleCartPress = () => {
+        router.push("/(modals)/cart");
     };
 
     if (loading) {
         return (
             <View style={[styles.container, { backgroundColor: colors.background }]}>
-                <Animated.View 
+                <Animated.View
                     style={[
                         styles.header,
                         {
@@ -206,9 +229,9 @@ export default function TabMenuScreen() {
     }
 
     const renderProducto = ({ item, index }: { item: Producto; index: number }) => (
-        <ProductCard 
-            item={item} 
-            colors={colors} 
+        <ProductCard
+            item={item}
+            colors={colors}
             onOrdenar={handleOrdenar}
             index={index}
         />
@@ -216,7 +239,7 @@ export default function TabMenuScreen() {
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-            <Animated.View 
+            <Animated.View
                 style={[
                     styles.header,
                     {
@@ -230,13 +253,18 @@ export default function TabMenuScreen() {
                     }
                 ]}
             >
-                <Text style={[styles.title, { color: colors.text }]}>Nuestro Menú</Text>
-                <View style={styles.subtitleContainer}>
-                    <View style={styles.decorativeLine} />
-                    <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-                        Explora todo lo que Dengo tiene para ofrecerte
-                    </Text>
-                    <View style={styles.decorativeLine} />
+                <View style={styles.headerTop}>
+                    <View style={styles.headerTextContainer}>
+                        <Text style={[styles.title, { color: colors.text }]}>Nuestro Menú</Text>
+                        <View style={styles.subtitleContainer}>
+                            <View style={styles.decorativeLine} />
+                            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+                                Explora todo lo que Dengo tiene para ofrecerte
+                            </Text>
+                            <View style={styles.decorativeLine} />
+                        </View>
+                    </View>
+                    <CartIcon onPress={handleCartPress} />
                 </View>
             </Animated.View>
 
@@ -261,19 +289,24 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
         marginTop: 0,
         paddingBottom: 20,
-        alignItems: "center",
+    },
+    headerTop: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    headerTextContainer: {
+        flex: 1,
     },
     title: {
         fontSize: 32,
         fontWeight: "800",
         letterSpacing: 1,
         marginBottom: 12,
-        textAlign: "center",
     },
     subtitleContainer: {
         flexDirection: "row",
         alignItems: "center",
-        justifyContent: "center",
         gap: 12,
     },
     decorativeLine: {

@@ -1,6 +1,7 @@
 import { supabase } from "@/config/initSupabase";
 import { Session, User } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useState } from "react";
+import { CartProvider } from "@/services/CartContext";
 
 
 // Definición del contexto de autenticación 
@@ -56,7 +57,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     return (
         <AuthContext.Provider value={{ session, user, loading, signOut }}>
-            {children}
+            <CartProvider>
+                {children}
+            </CartProvider>
         </AuthContext.Provider>
     );
 }

@@ -90,6 +90,22 @@ export default function TabLayout() {
         }}
       />
 
+      <Tabs.Screen
+        name="(modals)/customize-product"
+        options={{
+          href: null,
+          title: 'Personalizar Producto',
+        }}
+      />
+
+      <Tabs.Screen
+        name="(modals)/cart"
+        options={{
+          href: null,
+          title: 'Carrito',
+        }}
+      />
+
       {/* Boton para recompensas */}
       <Tabs.Screen
         name="rewards"

@@ -1,4 +1,4 @@
-import { StyleSheet, ScrollView, TouchableOpacity, Dimensions, useColorScheme, View as RNView, Animated } from 'react-native';
+import { StyleSheet, ScrollView, TouchableOpacity, Dimensions, useColorScheme, View as RNView, Animated, Alert, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Text, View } from '@/components/Themed';
 import { Ionicons } from '@expo/vector-icons';
@@ -104,12 +104,14 @@ const ProductCard = ({
   producto,
   puntosActuales,
   isDark,
-  index
+  index,
+  onCanjear
 }: {
   producto: Producto;
   puntosActuales: number;
   isDark: boolean;
   index: number;
+  onCanjear: (producto: Producto) => void;
 }) => {
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -150,6 +152,12 @@ const ProductCard = ({
 
   const canCanje = puntosActuales >= producto.puntos;
 
+  const handleCanjear = () => {
+    if (canCanje) {
+      onCanjear(producto);
+    }
+  };
+
   return (
     <Animated.View
       style={[
@@ -189,10 +197,14 @@ const ProductCard = ({
                 <Ionicons name="star" size={18} color="#F59E0B" />
                 <Text style={styles.productPointsText}>{producto.puntos}</Text>
               </RNView>
-              <View style={[
-                styles.canjeButton,
-                !canCanje && styles.canjeButtonDisabled
-              ]}>
+              <TouchableOpacity
+                onPress={handleCanjear}
+                disabled={!canCanje}
+                style={[
+                  styles.canjeButton,
+                  !canCanje && styles.canjeButtonDisabled
+                ]}
+              >
                 {canCanje ? (
                   <LinearGradient
                     colors={['#F59E0B', '#D97706']}
@@ -205,7 +217,7 @@ const ProductCard = ({
                 ) : (
                   <Text style={styles.canjeButtonTextDisabled}>Bloqueado</Text>
                 )}
-              </View>
+              </TouchableOpacity>
             </RNView>
           </RNView>
         </RNView>
@@ -327,6 +339,7 @@ export default function TabRewardsScreen() {
   const [visitas, setVisitas] = useState(0);
   const [nivel, setNivel] = useState("");
   const [refreshing, setRefreshing] = useState(false);
+  const [procesandoCanje, setProcesandoCanje] = useState<number | null>(null);
 
 
   // Función para obtener puntos
@@ -378,7 +391,86 @@ export default function TabRewardsScreen() {
     }, [session?.user.id])
   );
 
+  const handleCanjearProducto = async (producto: Producto) => {
+    if (!session?.user.id) {
+      Alert.alert('Error', 'Debes iniciar sesión para canjear productos');
+      return;
+    }
 
+    if (puntos < producto.puntos) {
+      Alert.alert('Puntos insuficientes', `Necesitas ${producto.puntos} puntos para canjear este producto`);
+      return;
+    }
+
+    setProcesandoCanje(producto.id);
+
+    try {
+      // Preparar los datos para la venta
+      const ventaData = {
+        sucursal_id: 1, // Sucursal por defecto
+        usuario_id: session.user.id,
+        items: [
+          {
+            producto_id: producto.id,
+            nombre_item: producto.nombre,
+            precio_unitario: 0, // Precio en dinero es 0 porque se paga con puntos
+            cantidad: 1
+          }
+        ],
+        metodo_pago: 'puntos',
+        monto_pagado: 0, // No se paga dinero
+        puntos_usados: producto.puntos,
+        descuento_aplicado: 0,
+        notas: `Canje de recompensa: ${producto.nombre}`
+      };
+
+      console.log('Enviando datos de canje:', ventaData);
+
+      const response = await fetch(`${backendUrl}api/ventas/registrar-venta`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(ventaData)
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Error al procesar el canje');
+      }
+
+      if (result.mensaje) {
+        // Canje exitoso
+        Alert.alert(
+          '¡Canje Exitoso!',
+          `Has canjeado ${producto.puntos} puntos por: ${producto.nombre}`,
+          [
+            {
+              text: 'Aceptar',
+              onPress: () => {
+                // Actualizar los puntos localmente
+                setPuntos(prev => prev - producto.puntos);
+                // Actualizar datos del usuario
+                obtenerPuntos();
+              }
+            }
+          ]
+        );
+      } else {
+        throw new Error('Respuesta inesperada del servidor');
+      }
+
+    } catch (error: any) {
+      console.error('Error en canje:', error);
+      Alert.alert(
+        'Error en el Canje',
+        error.message || 'No se pudo completar el canje. Intenta nuevamente.'
+      );
+    } finally {
+      setProcesandoCanje(null);
+    }
+  };
 
   useEffect(() => {
     Animated.spring(headerAnim, {
@@ -547,6 +639,7 @@ export default function TabRewardsScreen() {
                   puntosActuales={puntos}
                   isDark={isDark}
                   index={index}
+                  onCanjear={handleCanjearProducto}
                 />
               ))}
             </View>
@@ -576,6 +669,15 @@ export default function TabRewardsScreen() {
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
+      {/* Loading overlay para canje */}
+      {procesandoCanje && (
+        <View style={styles.processingOverlay}>
+          <View style={styles.processingCard}>
+            <ActivityIndicator size="large" color="#F59E0B" />
+            <Text style={styles.processingText}>Procesando canje...</Text>
+          </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -982,5 +1084,31 @@ const styles = StyleSheet.create({
   },
   bottomSpacer: {
     height: 60,
+  },
+  processingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  processingCard: {
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    padding: 30,
+    borderRadius: 20,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(245, 158, 11, 0.3)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  processingText: {
+    marginTop: 16,
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1F2937',
   },
 });

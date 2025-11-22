@@ -5,7 +5,8 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { Text, View } from '@/components/Themed';
 import { Stack, router } from 'expo-router';
 import { useState } from 'react';
-import { useCart, ProductoPersonalizado } from '@/services/CartContext';
+import { useCart } from '@/services/CartContext';
+import { ProductoPersonalizado } from '@/interfaces/Cart';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function CartModal() {

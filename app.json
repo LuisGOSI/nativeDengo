@@ -9,7 +9,7 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/images/Dengo_logo_png.png",
       "resizeMode": "contain",
       "backgroundColor": "#FFFFFF"
     },
@@ -19,11 +19,11 @@
     "ios": {
       "supportsTablet": true,
       "splash": {
-        "image": "./assets/images/splash.png",
+        "image": "./assets/images/Dengo_logo_png.png",
         "resizeMode": "contain",
         "backgroundColor": "#FAFAF8",
         "dark": {
-          "image": "./assets/images/splash-dark.png",
+          "image": "./assets/images/Dengo_logo_png.png",
           "resizeMode": "contain",
           "backgroundColor": "#1a1a1a"
         }
@@ -66,10 +66,10 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#FAFAF8",
-          "image": "./assets/images/splash.png",
+          "image": "./assets/images/Dengo_logo_png.png",
           "dark": {
             "backgroundColor": "#1a1a1a",
-            "image": "./assets/images/splash-dark.png"
+            "image": "./assets/images/Dengo_logo_png.png"
           },
           "imageWidth": 200
         }

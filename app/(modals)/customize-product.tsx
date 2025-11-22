@@ -6,29 +6,10 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { Text, View } from '@/components/Themed';
 import { Stack, router, useLocalSearchParams } from 'expo-router';
 import { useState, useEffect } from 'react';
-import { useCart, IngredientePersonalizado, ProductoPersonalizado } from '@/services/CartContext';
+import { useCart } from '@/services/CartContext';
 import { Ionicons } from '@expo/vector-icons';
-
-interface Producto {
-  id: number;
-  nombre: string;
-  descripcion?: string;
-  precio: number;
-  categoria_id: number;
-}
-
-interface Ingrediente {
-  id: number;
-  nombre: string;
-  descripcion: string;
-  tipo: string;
-  activo: boolean;
-  id_categoria: number;
-  categorias: {
-    id: number;
-    nombre: string;
-  };
-}
+import { IngredientePersonalizado, ProductoPersonalizado } from '@/interfaces/Cart';
+import { Ingrediente } from '@/interfaces/CustomizeProduct';
 
 export default function CustomizeProductModal() {
   const { productId, productName, productPrice, categoryId } = useLocalSearchParams();
@@ -41,6 +22,8 @@ export default function CustomizeProductModal() {
   const [selecciones, setSelecciones] = useState<{[tipo: string]: Ingrediente | null}>({});
   const [cantidad, setCantidad] = useState(1);
 
+  const backEndUrl = process.env.EXPO_PUBLIC_BACKEND_URL
+
   useEffect(() => {
     cargarIngredientes();
   }, []);
@@ -51,7 +34,7 @@ export default function CustomizeProductModal() {
       
       // Usar el endpoint que obtiene ingredientes por categoría del producto
       const response = await fetch(
-        `https://6p07dnj1-3000.usw3.devtunnels.ms/api/ingredientes/producto/${productId}`
+        `${backEndUrl}api/ingredientes/producto/${productId}`
       );
       
       const result = await response.json();

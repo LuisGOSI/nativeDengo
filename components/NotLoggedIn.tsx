@@ -259,7 +259,7 @@ const NotLoggedIn = () => {
                     <Text style={[styles.footerText, { color: premiumColors.textSecondary }]}>
                         ¿No tienes una cuenta?
                     </Text>
-                    <Pressable onPress={() => router.push('/')}>
+                    <Pressable onPress={() => router.push('/login')}>
                         <Text style={[styles.footerLink, { color: premiumColors.primary }]}>
                             Regístrate aquí
                         </Text>
